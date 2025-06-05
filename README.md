@@ -1,1 +1,1 @@
-![Uploading 修了証.pdf.jpg…]()
+![Uploading 修了証.pdf.png…]()
