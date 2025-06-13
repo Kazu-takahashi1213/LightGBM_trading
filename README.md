@@ -18,7 +18,7 @@ Below is the official certificate of completion:
 
 ---
 
-## 📂 ディレクトリ構成
+## ディレクトリ構成
 
 ```plaintext
 Financial_trading_algolythm/
@@ -56,7 +56,7 @@ Financial_trading_algolythm/
 
 ---
 
-## 🚀 ワークフロー概要
+## ワークフロー概要
 
 1. **データパイプライン** (`data_pipeline/`)
 
@@ -85,7 +85,7 @@ Financial_trading_algolythm/
 
 ---
 
-## 📦 セットアップ手順
+## セットアップ手順
 
 ```bash
 # 1. 仮想環境の作成
@@ -105,16 +105,9 @@ pytest -q
 
 ---
 
-## 📚 参考文献
+## 参考文献
 
 * Marcos López de Prado, *Advances in Financial Machine Learning*
 * Pykalman, Statsmodels, mlfinlab ライブラリ
 
 ---
-
-## 📝 ライセンス
-
-MIT © Your Name
-
-```
-```
