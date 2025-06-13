@@ -1,0 +1,15 @@
+git+https://github.com/hudson-and-thames/mlfinlab.git
+
+pandas
+numpy
+statsmodels
+scikit-learn
+mlfinlab
+fastapi
+uvicorn
+pykalman
+fracdiff
+pytest
+fastapi
+uvicorn
+requests
