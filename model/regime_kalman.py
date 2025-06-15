@@ -4,13 +4,18 @@ from statsmodels.tsa.statespace.mlemodel import MLEModel
 
 class RegimeKalman(MLEModel):
     def __init__(self, endog: pd.Series, transition_cov: float = 0.01, obs_cov: float = 1.0):
+        # Preserve index for output
+        self._index = endog.index
         # 状態次元=2, k_posdef=2 を指定
         super().__init__(endog, k_states=2, k_posdef=2)
         self.transition_cov = transition_cov
         self.obs_cov = obs_cov
+        # Initialize state with diffuse priors
+        self.initialize_approximate_diffuse()
 
+    @property
     def start_params(self):
-        # 最適化の初期値：遷移共分散, 観測共分散
+        """Initial parameters for optimization."""
         return np.array([self.transition_cov, self.obs_cov])
 
     def transform_params(self, unconstrained):
@@ -52,5 +57,5 @@ class RegimeKalman(MLEModel):
         vol   = sm.smoothed_state[1]
         return pd.DataFrame(
             {'trend': trend, 'vol': vol},
-            index=self.endog.index
+            index=self._index
         )
