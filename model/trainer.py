@@ -19,6 +19,7 @@ class ModelTrainer:
         y: pd.Series,
         n_splits: int = 5,
         embargo_td: Optional[pd.Timedelta] = None
+
     ) -> float:
         """
         Perform simple K-Fold cross validation and return the mean accuracy.

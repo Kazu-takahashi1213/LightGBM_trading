@@ -29,3 +29,4 @@ def generate_labels(
     future_ret = prices.pct_change().shift(-1)
     labels = future_ret.loc[t_events].fillna(0)
     return labels.apply(lambda x: 1 if x > 0 else -1 if x < 0 else 0)
+
