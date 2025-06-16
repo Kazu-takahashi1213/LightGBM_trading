@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from mlfinlab.cross_validation import PurgedKFold
+from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score
 import joblib
+from typing import Optional
 
 class ModelTrainer:
     def __init__(self, model: RandomForestClassifier = None):
@@ -17,14 +18,16 @@ class ModelTrainer:
         X: pd.DataFrame,
         y: pd.Series,
         n_splits: int = 5,
-        embargo_td: pd.Timedelta = pd.Timedelta('1 days')
+        embargo_td: Optional[pd.Timedelta] = None
     ) -> float:
         """
-        Purged K-Fold CV で汎化精度を測定し、平均正解率を返す
+        Perform simple K-Fold cross validation and return the mean accuracy.
+        ``embargo_td`` is accepted for API compatibility but is ignored in this
+        lightweight implementation.
         """
-        pkf = PurgedKFold(n_splits=n_splits, embargo_td=embargo_td)
+        kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
         scores = []
-        for train_idx, test_idx in pkf.split(X, y):
+        for train_idx, test_idx in kf.split(X):
             clf = self.model
             clf.fit(X.iloc[train_idx], y.iloc[train_idx])
             preds = clf.predict(X.iloc[test_idx])
