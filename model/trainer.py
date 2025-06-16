@@ -1,16 +1,18 @@
 import pandas as pd
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+from lightgbm import LGBMClassifier
 from sklearn.model_selection import KFold
 from sklearn.metrics import accuracy_score
 import joblib
 from typing import Optional
 
 class ModelTrainer:
-    def __init__(self, model: RandomForestClassifier = None):
-        # ランダムフォレストをデフォルトモデルとする
-        self.model = model or RandomForestClassifier(
-            n_estimators=100, n_jobs=-1, random_state=42
+    def __init__(self, model: LGBMClassifier | None = None):
+        """Initialize trainer with a LightGBM classifier by default."""
+        self.model = model or LGBMClassifier(
+            n_estimators=100,
+            random_state=42,
+            n_jobs=-1,
         )
 
     def cross_validate(
@@ -18,14 +20,9 @@ class ModelTrainer:
         X: pd.DataFrame,
         y: pd.Series,
         n_splits: int = 5,
-        embargo_td: Optional[pd.Timedelta] = None
-
+        embargo_td: Optional[pd.Timedelta] = None,
     ) -> float:
-        """
-        Perform simple K-Fold cross validation and return the mean accuracy.
-        ``embargo_td`` is accepted for API compatibility but is ignored in this
-        lightweight implementation.
-        """
+        """Perform simple K-Fold cross validation and return the mean accuracy."""
         kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
         scores = []
         for train_idx, test_idx in kf.split(X):
@@ -36,21 +33,15 @@ class ModelTrainer:
         return float(np.mean(scores))
 
     def train(self, X: pd.DataFrame, y: pd.Series):
-        """
-        全データでモデルを学習
-        """
+        """Train the model on all data."""
         self.model.fit(X, y)
         return self.model
 
     def save(self, path: str):
-        """
-        学習済みモデルをファイル保存
-        """
+        """Persist the trained model to file."""
         joblib.dump(self.model, path)
 
     def load(self, path: str):
-        """
-        モデルをロードして self.model にセット
-        """
+        """Load a saved model and assign it to ``self.model``."""
         self.model = joblib.load(path)
         return self.model

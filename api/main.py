@@ -3,6 +3,7 @@ from typing import List
 import pandas as pd
 from model.regime_kalman import RegimeKalman
 from model.trainer import ModelTrainer
+from data_pipeline.feature_store import FeatureStore
 from api.schemas import PricePoint, SignalResponse
 from sklearn.dummy import DummyClassifier
 import os
@@ -11,6 +12,7 @@ app = FastAPI()
 
 # モデルとトレーナーの初期化
 trainer = ModelTrainer()
+fs = FeatureStore()
 model_path = os.path.join('models', 'model.pkl')
 if os.path.exists(model_path):
     clf = trainer.load(model_path)
@@ -32,8 +34,11 @@ def predict(data: List[PricePoint]):
     kf.fit_filter()
     states = kf.filter_states()
 
-    # 1期間前の状態を特徴量にシグナル予測
-    features = states.shift(1).dropna()
+    # テクニカル指標を計算
+    indicators = fs.technical_indicators(df)
+
+    # 1期間前の特徴量を用いてシグナル予測
+    features = pd.concat([states, indicators], axis=1).shift(1).dropna()
     signal = clf.predict(features)
 
     return SignalResponse(
