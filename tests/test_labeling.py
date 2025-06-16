@@ -22,20 +22,22 @@ def simple_labeling(close, events, pt_sl):
     return pd.DataFrame({'label': out})
 
 def generate_labels(prices, t_events, pt_sl=[0.01, 0.01], num_days=1):
-    """
-    簡易トリプルバリアラベリング
-    """
     t1 = prices.index.searchsorted(t_events + pd.Timedelta(days=num_days))
-    t1 = t1[t1 < len(prices)]
-    t1_index = prices.index[t1]
+    t1_index = prices.index[t1[t1 < len(prices)]]
+    
     events = pd.DataFrame(index=t_events)
-    events['t1'] = t1_index[:len(events)]
+    
+    # 長さを合わせて補完
+    full_t1_index = pd.Series(pd.NaT, index=events.index)
+    full_t1_index.iloc[:len(t1_index)] = t1_index.values
+    events['t1'] = full_t1_index
+    
     return simple_labeling(prices, events, pt_sl)
 
 def test_generate_labels_length():
-    idx = pd.date_range("2025-01-01", periods=20, freq="T")
-    prices = pd.Series(np.linspace(100, 120, 20), index=idx)
-    t_events = idx[::5]
+    idx = pd.date_range("2025-01-01", periods=2000, freq="T")
+    prices = pd.Series(np.linspace(100, 120, 2000), index=idx)
+    t_events = idx[::500]
     labels = generate_labels(prices, t_events, pt_sl=[0.01, 0.01], num_days=1)
     assert len(labels) == len(t_events)
     assert all(l in (-1, 0, 1) for l in labels['label'].values)
