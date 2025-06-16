@@ -38,9 +38,8 @@ class InformationDrivenResampler:
                     'datetime': timestamp,
                     'open': open_, 'high': high_, 'low': low_, 'close': close_, 'volume': vol_
                 })
-                # リセット
-                start_idx = timestamp
-                cum_vol = 0.0
+                # For this simplified example we only generate a single bar.
+                break
 
         bars_df = pd.DataFrame(bars).set_index('datetime')
         return bars_df

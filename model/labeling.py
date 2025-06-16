@@ -1,40 +1,31 @@
 import pandas as pd
-from mlfinlab.labeling import get_events, add_vertical_barrier, apply_pt_sl
-from mlfinlab.meta_labeling import ml_get_label
+
 
 def generate_labels(
     prices: pd.Series,
     t_events: pd.DatetimeIndex,
-    pt_sl: list = [1, 1],
+    pt_sl: list | None = None,
     num_days: int = 5
-) -> pd.DataFrame:
-    """
-    1. トリプルバリアでイベント取得
-    2. 垂直バリア（時間制限）追加
-    3. メタラベリングでサイド(+1/-1)とサイズを取得
+) -> pd.Series:
+    """Generate simple directional labels.
 
-    戻り値:
-        labels: DataFrame(index=t_events, columns=['label'])
+    Parameters
+    ----------
+    prices : pd.Series
+        Price series indexed by datetime.
+    t_events : pd.DatetimeIndex
+        Event timestamps to label.
+    pt_sl : list | None, optional
+        Unused in this lightweight implementation. Present for API compatibility.
+    num_days : int, optional
+        Unused in this lightweight implementation.
+
+    Returns
+    -------
+    pd.Series
+        Series of labels (+1, 0 or -1) indexed by ``t_events``.
     """
-    # トリプルバリア
-    events = get_events(
-        close=prices,
-        t_events=t_events,
-        pt_sl=pt_sl,
-        target=prices.pct_change().abs(),
-        min_ret=0.0,
-        num_threads=4
-    )
-    # 垂直バリアを追加
-    events = add_vertical_barrier(
-        events=events,
-        close=prices,
-        num_days=num_days
-    )
-    # メタラベリング
-    labels = ml_get_label(
-        close=prices,
-        events=events,
-        pt_sl=pt_sl
-    )
-    return labels
+    # Compute forward return for each timestamp in ``t_events``
+    future_ret = prices.pct_change().shift(-1)
+    labels = future_ret.loc[t_events].fillna(0)
+    return labels.apply(lambda x: 1 if x > 0 else -1 if x < 0 else 0)
