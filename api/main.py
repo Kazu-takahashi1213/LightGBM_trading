@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from typing import List
 import pandas as pd
-from model.regime_kalman import RegimeKalman
+import numpy as np
 from model.trainer import ModelTrainer
 from data_pipeline.feature_store import FeatureStore
 from api.schemas import PricePoint, SignalResponse
@@ -29,21 +29,17 @@ def predict(data: List[PricePoint]):
     df = pd.DataFrame([p.dict() for p in data]).set_index('datetime')
     df.index = pd.to_datetime(df.index)
 
-    # レジーム推定をフィッティング
-    kf = RegimeKalman(df['price'])
-    kf.fit_filter()
-    states = kf.filter_states()
-
     # テクニカル指標を計算
     indicators = fs.technical_indicators(df)
 
-    # 1期間前の特徴量を用いてシグナル予測
-    features = pd.concat([states, indicators], axis=1).shift(1).dropna()
+    # 1期間前の特徴量を用いて予測
+    features = indicators.shift(1).dropna()
+    proba = clf.predict_proba(features)
+    prob = proba[:, 1] if proba.shape[1] > 1 else np.zeros(len(features))
     signal = clf.predict(features)
 
     return SignalResponse(
         datetime=features.index.astype(str).tolist(),
-        trend=features['trend'].tolist(),
-        vol=features['vol'].tolist(),
+        prob_up=prob.tolist(),
         signal=signal.tolist()
     )
