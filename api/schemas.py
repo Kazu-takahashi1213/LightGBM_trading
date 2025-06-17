@@ -9,6 +9,5 @@ class PricePoint(BaseModel):
 
 class SignalResponse(BaseModel):
     datetime: List[str]
-    trend: List[float]
-    vol: List[float]
+    prob_up: List[float]
     signal: List[int]
