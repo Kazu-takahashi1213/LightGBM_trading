@@ -14,7 +14,8 @@ Below is the official certificate of completion:
 # Financial Trading Algorithm
 
 このプロジェクトは、**金融市場分析**と**機械学習**を組み合わせた自動売買アルゴリズムの開発を目的としています。
-特に状態空間モデル（カルマンフィルタ）によるレジーム推定を中核とし、以下のモジュールで構成されています。
+MACD や RSI、ボリンジャーバンドなどのテクニカル指標を特徴量とし、LightGBM で次の価格変動方向を予測する構成に刷新しました。
+以下のモジュールで構成されています。
 
 ---
 
@@ -30,9 +31,8 @@ Financial_trading_algolythm/
 │   ├── resampler.py          # InformationDrivenResampler クラス
 │   └── feature_store.py      # FracDiff やエントロピー計算
 ├── model/                    # モデル構築・学習・ラベリング
-│   ├── regime_kalman.py      # 状態空間モデル（カルマンフィルタ）
 │   ├── labeling.py           # トリプルバリア＋メタラベリング
-│   └── trainer.py            # PurgedKFold CV & モデル保存/ロード
+│   └── trainer.py            # LightGBM トレーナー
 ├── backtester/               # バックテストエンジンと評価指標
 │   ├── engine.py             # シグナル→P&L計算
 │   └── metrics.py            # シャープレシオ・最大ドローダウン
@@ -47,7 +47,6 @@ Financial_trading_algolythm/
 └── tests/                    # pytest 用ユニット・統合テスト
     ├── test_resampler.py
     ├── test_feature_store.py
-    ├── test_regime_kalman.py
     ├── test_labeling.py
     ├── test_trainer.py
     ├── test_backtester.py
@@ -65,9 +64,8 @@ Financial_trading_algolythm/
 
 2. **モデル構築** (`model/`)
 
-   * **状態空間モデル** (`regime_kalman.py`)：2次元（トレンド×ボラティリティ）カルマンフィルタ
    * **ラベリング** (`labeling.py`)：トリプルバリア + メタラベリングによるサイド＆サイズ判定
-   * **トレーナー** (`trainer.py`)：Purged K-Fold CV でモデル評価、学習済みモデルの保存／ロード
+   * **トレーナー** (`trainer.py`)：LightGBM による価格変動方向の学習とモデル保存
 
 3. **バックテスト** (`backtester/`)
 
@@ -76,7 +74,7 @@ Financial_trading_algolythm/
 
 4. **推論API** (`api/`)
 
-   * `/predict` エンドポイントに価格時系列を送信し、レジーム推定結果（trend, vol）と売買シグナルを返却
+   * `/predict` エンドポイントに価格時系列を送信し、上昇確率と売買シグナルを返却
 
 5. **スケジューラー & モニタリング**
 
@@ -108,6 +106,6 @@ pytest -q
 ## 参考文献
 
 * Marcos López de Prado, *Advances in Financial Machine Learning*
-* Pykalman, Statsmodels, mlfinlab ライブラリ
+* LightGBM
 
 ---

@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-import pandas as pd
 from api.main import app
 
 client = TestClient(app)
@@ -15,6 +14,6 @@ def test_predict_endpoint_minimal():
     assert response.status_code == 200
     body = response.json()
     # 各キーが含まれる
-    assert set(body.keys()) == {"datetime", "trend", "vol", "signal"}
+    assert set(body.keys()) == {"datetime", "prob_up", "signal"}
     # シグナルリストの長さは入力長-1
     assert len(body["signal"]) == len(data) - 1
