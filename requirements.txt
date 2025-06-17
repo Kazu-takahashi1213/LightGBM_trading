@@ -7,3 +7,4 @@ uvicorn
 pytest
 requests
 httpx
+typing_extensions>=4.5
